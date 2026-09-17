@@ -1,0 +1,65 @@
+name: Build Android APK
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Prepare web app
+        run: |
+          rm -rf webapp
+          mkdir webapp
+          unzip -o Diretoria_Adulto_v1.zip -d /tmp/da
+          cp -r /tmp/da/diretoria_adulto_v1/* webapp/
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Create Capacitor Android project
+        run: |
+          cat > package.json <<'EOF'
+          {
+            "name": "diretoria-adulto",
+            "private": true,
+            "version": "1.0.0",
+            "scripts": {
+              "build": "echo web app ready"
+            },
+            "dependencies": {
+              "@capacitor/core": "^7.4.3",
+              "@capacitor/android": "^7.4.3"
+            },
+            "devDependencies": {
+              "@capacitor/cli": "^7.4.3"
+            }
+          }
+          EOF
+          npm install
+          npx cap init "Diretoria Adulto" "pt.diretoriaadulto.app" --web-dir webapp
+          npx cap add android
+          npx cap sync android
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Build APK
+        working-directory: android
+        run: ./gradlew assembleDebug
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: Diretoria-Adulto-APK
+          path: android/app/build/outputs/apk/debug/app-debug.apk

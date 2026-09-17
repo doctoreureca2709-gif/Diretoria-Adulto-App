@@ -16,8 +16,8 @@ jobs:
         run: |
           rm -rf webapp
           mkdir webapp
-          unzip -o Diretoria_Adulto_v1.zip -d /tmp/da
-          cp -r /tmp/da/diretoria_adulto_v1/* webapp/
+          unzip -o Diretoria_Adulto_v2.zip -d /tmp/da
+          cp -r /tmp/da/diretoria_adulto_v2/* webapp/
 
       - name: Setup Node
         uses: actions/setup-node@v4
